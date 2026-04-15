@@ -2020,10 +2020,11 @@ else:
 
 st.markdown('</div>', unsafe_allow_html=True)
 
-# ✅ FOOTER (correct placement)
-st.markdown(
+import streamlit.components.v1 as components
+
+components.html(
     """
-    <div style='
+    <div style="
         margin-top: 30px;
         padding: 18px 22px;
         border-radius: 18px;
@@ -2034,21 +2035,20 @@ st.markdown(
         align-items: center;
         flex-wrap: wrap;
         gap: 10px;
-    '>
-
-        <div style='font-size: 13px; color: #5B0F2E; font-weight: 600;'>
-            Confidential &amp; Proprietary © 2026 Strategic Market Research
+        font-family: Inter, sans-serif;
+    ">
+        <div style="font-size: 13px; color: #5B0F2E; font-weight: 600;">
+            Confidential & Proprietary © 2026 Strategic Market Research
         </div>
 
-        <div style='font-size: 13px; color: #7A163F;'>
+        <div style="font-size: 13px; color: #7A163F;">
             Access full report:
-            <a href='mailto:info@strategicmarketresearch.com'
-               style='color:#5B0F2E; font-weight:700; text-decoration:none; margin-left:6px;'>
+            <a href="mailto:info@strategicmarketresearch.com"
+               style="color:#5B0F2E; font-weight:700; text-decoration:none; margin-left:6px;">
                info@strategicmarketresearch.com
             </a>
         </div>
-
     </div>
     """,
-    unsafe_allow_html=True
+    height=80,
 )
