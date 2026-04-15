@@ -1951,6 +1951,20 @@ st.markdown(
         flex-wrap: wrap;
         gap: 10px;
     ">
+        st.markdown(
+    """
+    <div style="
+        margin-top: 30px;
+        padding: 18px 22px;
+        border-radius: 18px;
+        background: linear-gradient(135deg, #FAF2F5 0%, #F3E3EA 100%);
+        border: 1px solid #E7D3DD;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 10px;
+    ">
         <div style="font-size: 13px; color: #5B0F2E; font-weight: 600;">
             Confidential & Proprietary © 2026 Strategic Market Research
         </div>
