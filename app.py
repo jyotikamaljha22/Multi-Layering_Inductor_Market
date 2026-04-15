@@ -10,10 +10,10 @@ import streamlit.components.v1 as components
 # PAGE CONFIG
 # ----------------------------
 st.set_page_config(
-    page_title="Strategic Market Research | TDK Corporation Advisory",
+    page_title="Strategic Market Research | TDK Corporation Boardroom",
     page_icon="📈",
     layout="wide",
-    initial_sidebar_state="collapsed", 
+    initial_sidebar_state="expanded", 
 )
 
 # ----------------------------
@@ -68,13 +68,17 @@ st.markdown(
     }}
 
     /* --- LOGIN FORM STYLING --- */
-    .stTextInput input {{
+    div[data-baseweb="input"] {{
+        background-color: #ffffff !important;
         border-radius: 8px !important;
+    }}
+    .stTextInput input {{
+        border-radius: 8px !important; 
         border: 1px solid #cbd5e1 !important;
-        padding: 12px 14px !important;
-        background: #ffffff !important;
-        color: #1e293b !important;
-        font-weight: 500 !important;
+        padding: 12px 14px !important; 
+        background-color: #ffffff !important; 
+        color: #1A1A1A !important;
+        -webkit-text-fill-color: #1A1A1A !important;
     }}
     .stTextInput input:focus {{
         border-color: {GOLD} !important;
@@ -100,15 +104,19 @@ st.markdown(
     unsafe_allow_html=True
 )
 
+# --- JAILBREAK SCRIPT ---
+components.html(
+    """<script>setTimeout(function() {var e = window.parent.document.querySelector('[data-testid="collapsedControl"]'); if(e) e.click();}, 100);</script>""",
+    height=0, width=0
+)
+
 # ----------------------------
-# ACCESS CONTROL (CENTERED GATEWAY)
+# ACCESS CONTROL
 # ----------------------------
 def check_access():
     expected_password = str(st.secrets.get("ACCESS_CODE", "SMR2026")).strip()
-
     if "authenticated" not in st.session_state:
         st.session_state.authenticated = False
-
     if st.session_state.authenticated:
         return True
 
@@ -121,7 +129,7 @@ def check_access():
         else:
             st.markdown(f"<h1 style='text-align:center; color:{BURGUNDY}; font-weight:800; font-size:2.2rem; margin-bottom:0;'>Strategic Market Research</h1>", unsafe_allow_html=True)
             
-        st.markdown(f"<p style='text-align:center; color:{GOLD}; font-weight:800; letter-spacing:0.08em; text-transform:uppercase; margin-bottom:30px; font-size: 0.9rem;'>TDK Corporation Executive Advisory</p>", unsafe_allow_html=True)
+        st.markdown(f"<p style='text-align:center; color:{GOLD}; font-weight:800; letter-spacing:0.08em; text-transform:uppercase; margin-bottom:30px; font-size: 0.9rem;'>TDK Corporation Advisory Portal</p>", unsafe_allow_html=True)
         
         with st.form("login_form"):
             st.markdown(f"<h3 style='color:#1e293b; font-weight:800; margin-bottom:20px; text-align:center; font-size: 1.4rem;'>🔐 Secure Authentication</h3>", unsafe_allow_html=True)
@@ -140,7 +148,6 @@ def check_access():
             st.session_state.authenticated = True
             st.session_state.viewer_name = name.strip()
             st.rerun()
-
     st.stop()
 
 check_access()
@@ -186,20 +193,20 @@ RAW_HTML_CONTENT = """
         h2 { font-size: 1.5rem; font-weight: 700; color: #4A0C25; margin-top: 2rem; margin-bottom: 1rem; }
         
         /* Teaser Mask / Blur */
-        .frost-lock { filter: blur(6px); opacity: 0.3; pointer-events: none; user-select: none; }
-        .teaser-banner { background: #fffbeb; border: 1px solid #fde68a; padding: 1rem; border-radius: 8px; color: #92400e; font-weight: 600; font-size: 0.85rem; margin-top: -1.5rem; margin-bottom: 2rem; display: flex; align-items: center; gap: 8px; }
+        .frost-lock { filter: blur(8px); opacity: 0.2; pointer-events: none; user-select: none; }
+        .teaser-box { background: #fffbeb; border: 1px solid #fde68a; padding: 1.5rem; border-radius: 8px; color: #92400e; font-weight: 600; font-size: 0.9rem; margin-bottom: 1.5rem; text-align: center; }
 
         /* Insight Box */
         .insight-highlight { background: linear-gradient(135deg, #fdfcfd 0%, #fff 100%); border-left: 5px solid #C49A23; padding: 1.5rem; margin: 2rem 0; font-style: italic; color: #4A0C25; font-weight: 600; border-radius: 4px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); }
         
         /* Sidebar Navigation */
         .sidebar { background-color: #2D0716; }
-        .nav-item { cursor: pointer; transition: all 0.2s; color: #d1d5db; border-left: 4px solid transparent; }
+        .nav-item { cursor: pointer; transition: all 0.2s; color: #9ca3af; border-left: 4px solid transparent; }
         .nav-item:hover { background-color: rgba(255,255,255,0.05); color: #ffffff; }
         .nav-item.active { background-color: rgba(255,255,255,0.1); color: #C49A23; font-weight: 700; border-left: 4px solid #C49A23; }
 
         ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb { background: rgba(196,154,35,0.4); border-radius: 10px; }
     </style>
 </head>
 <body class="flex h-screen overflow-hidden">
@@ -208,12 +215,12 @@ RAW_HTML_CONTENT = """
         <div class="p-8 border-b border-white/10 sticky top-0 sidebar">
             <div class="mb-4">__LOGO_PLACEHOLDER__</div>
             <div class="text-xs font-bold tracking-widest text-[#C49A23] uppercase mb-1">Strategic Market Research</div>
-            <h2 class="text-xl font-extrabold text-white leading-tight">Multilayer Inductor <br>Boardroom Playbook</h2>
-            <div class="text-xs text-slate-400 mt-2 font-medium">TDK Corporation Advisory</div>
+            <h2 class="text-xl font-extrabold text-white leading-tight">Multilayer Inductor <br>Global Master Report</h2>
+            <div class="text-xs text-slate-400 mt-2 font-medium">Internal Advisory Document</div>
         </div>
         <nav class="flex-1 py-4" id="sidebar-nav"></nav>
         <div class="p-6 border-t border-white/10 text-[10px] text-slate-500 uppercase tracking-widest bg-black/20">
-            Confidential & Proprietary<br>&copy; 2026 SMR Group
+            &copy; 2026 SMR Group • Confidential
         </div>
     </aside>
 
@@ -221,142 +228,156 @@ RAW_HTML_CONTENT = """
         
         <article id="ch1" class="chapter-content active max-w-5xl mx-auto">
             <h1>1. Executive Summary & Strategic Objective</h1>
-            <p>The global multilayer inductor market is at a critical inflection point, transitioning from a reliance on consumer electronics volumes toward high-value, reliability-critical applications in Automotive and RF infrastructure. For TDK Corporation, success relies on leveraging advanced material science to bypass the commoditization trap currently affecting legacy compact ferrite lines.</p>
-            <div class="insight-highlight">Strategic Mandate: Pivot portfolio weighting toward AEC-Q200 Grade 0 components to capture a projected $299.6M automotive value pool by 2035.</div>
+            <p>The global multilayer inductor market is at a definitive crossroads. As consumer device volumes plateau, value creation is migrating toward high-reliability automotive and precision RF matching sub-systems. Manufacturers possessing integrated ceramic material science capabilities stand to capture the majority of the projected $2.1B profit pool by 2035.</p>
             <table>
-                <thead>
-                    <tr><th>Segment</th><th>2025 ($Mn)</th><th>2035 ($Mn)</th><th>CAGR (%)</th></tr>
-                </thead>
+                <thead><tr><th>Metric</th><th>2025</th><th>2035</th><th>CAGR</th></tr></thead>
                 <tbody>
-                    <tr><td>RF / High-Frequency</td><td>$839.12</td><td>$1,143.43</td><td>3.14%</td></tr>
-                    <tr><td>Automotive-Qualified</td><td>$132.75</td><td>$299.60</td><td>8.48%</td></tr>
-                    <tr><td>Compact Ferrite / NFC</td><td>$474.81</td><td>$672.22</td><td>3.54%</td></tr>
+                    <tr><td>Market Revenue ($Mn)</td><td>$1,446.68</td><td>$2,115.25</td><td>3.87%</td></tr>
+                    <tr><td>Unit Volume (Bn)</td><td>77.0 Bn</td><td>116.1 Bn</td><td>4.19%</td></tr>
+                    <tr><td>Auto-Grade Share (%)</td><td>9.18%</td><td>14.16%</td><td>8.48%</td></tr>
                 </tbody>
             </table>
+            <div class="insight-highlight">Key Strategic Priority: Transition from commoditized smartphone volume toward ultra-high-frequency (UHF) RF and AEC-Q200 Grade 0 components to insulate margins from 3.5% annual consumer price erosion.</div>
         </article>
 
         <article id="ch2" class="chapter-content max-w-5xl mx-auto">
-            <h1>2. Market Core: Global Size & Volume</h1>
-            <p>Analysis confirms that unit shipments (Bn units) are decoupled from revenue growth. Manufacturers face a "Volume-Value Scissors" where physical output must expand at 5.5% CAGR to sustain a 3.8% revenue CAGR, driven by ASP erosion in the consumer core.</p>
+            <h1>2. Global Size, Volume & Trajectory</h1>
+            <p>Physical volume demand is projected to expand to 116.11 Bn units by 2035. However, a structural decoupling is occurring: unit demand (+4.2%) is outpacing revenue (+3.87%), signaling a relentless deflationary pressure in legacy form factors.</p>
             <table>
-                <thead>
-                    <tr><th>Metric</th><th>2025</th><th>2030</th><th>2035</th></tr>
-                </thead>
+                <thead><tr><th>Segment</th><th>2025 (Bn)</th><th>2035 (Bn)</th><th>CAGR</th></tr></thead>
                 <tbody>
-                    <tr><td>Revenue Pool ($Mn)</td><td>$1,446.68</td><td>$1,727.53</td><td>$2,115.25</td></tr>
-                    <tr><td>Volume Load (Bn units)</td><td>85.39</td><td>112.51</td><td>146.40</td></tr>
+                    <tr><td>RF / High-Frequency</td><td>38.14</td><td>54.45</td><td>3.62%</td></tr>
+                    <tr><td>Compact Ferrite</td><td>35.17</td><td>53.78</td><td>4.33%</td></tr>
+                    <tr><td>Automotive-Qualified</td><td>3.69</td><td>7.88</td><td>7.88%</td></tr>
                 </tbody>
             </table>
         </article>
 
         <article id="ch3" class="chapter-content max-w-5xl mx-auto">
             <h1>3. Pricing & Value Dynamics</h1>
-            <p>ASP hierarchies are rigid. Automotive parts command a 3x premium over IoT components. TDK must utilize proprietary sintering to defend the $0.022 RF benchmark as regional challengers attempt to bridge the gap from the $0.013 ferrite baseline.</p>
+            <p>Pricing remains highly sensitive to material science thresholds. Automotive-grade inductors are the only category demonstrating positive price appreciation, providing a "Value Lifeboat" for Japanese incumbents against aggressive regional price wars.</p>
             <table>
-                <thead>
-                    <tr><th>Segment</th><th>2025 ASP ($/unit)</th><th>2035 ASP ($/unit)</th><th>Pricing Trend</th></tr>
-                </thead>
+                <thead><tr><th>Segment</th><th>2025 ASP ($)</th><th>2035 ASP ($)</th><th>CAGR</th></tr></thead>
                 <tbody>
-                    <tr><td>Automotive-Qualified</td><td>$0.0360</td><td>$0.0380</td><td class="text-emerald-600 font-bold">Appreciating</td></tr>
-                    <tr><td>RF / High-Frequency</td><td>$0.0220</td><td>$0.0210</td><td class="text-rose-600">Deflationary</td></tr>
+                    <tr><td>Automotive-Grade</td><td>$0.0360</td><td>$0.0380</td><td>0.54%</td></tr>
+                    <tr><td>Consumer RF</td><td>$0.0220</td><td>$0.0210</td><td>-0.46%</td></tr>
                 </tbody>
             </table>
         </article>
 
         <article id="ch4" class="chapter-content max-w-5xl mx-auto">
-            <h1>4-6. Demand Engines: Device-Level Modeling</h1>
-            <p>Smartphones provide the volumetric floor, but Electric Vehicles (EVs) act as the value engine. By 2035, EV component density will reach ~140 units per chassis, fundamentally altering TDK’s shipment mix.</p>
-            <div class="teaser-banner"><span>🔒</span> 2,000+ Row Named Project Database Hidden.</div>
+            <h1>4. Device Modeling: Smartphones & Wearables</h1>
+            <p>The smartphone content-per-device continues to expand as 5G architectures demand denser antenna matching. However, the volume anchor is shifting toward True Wireless Stereo (TWS) and Health-wearables requiring sub-0201 architectures.</p>
+            <div class="teaser-box">🔒 15-Device category unit-level indices are reserved for purchasers.</div>
             <table class="frost-lock">
-                <thead><tr><th>OEM</th><th>Project Name</th><th>Units/Year</th><th>Value</th></tr></thead>
+                <thead><tr><th>Device</th><th>2025 Content</th><th>2035 Content</th><th>Value Pool</th></tr></thead>
                 <tbody>
-                    <tr><td>[REDACTED]</td><td>Project Titan</td><td>1.2 Bn</td><td>$$$</td></tr>
-                    <tr><td>[REDACTED]</td><td>Giga Chassis V</td><td>0.9 Bn</td><td>$$$</td></tr>
+                    <tr><td>Smartphone</td><td>40-45 units</td><td>[HIDDEN]</td><td>$$$</td></tr>
+                    <tr><td>Hearables</td><td>12-18 units</td><td>[HIDDEN]</td><td>$$$</td></tr>
                 </tbody>
             </table>
         </article>
 
         <article id="ch5" class="chapter-content max-w-5xl mx-auto">
-            <h1>7-8. Use-Cases & Miniaturization Moats</h1>
-            <p>01005 (imperial) architectures serve as the definitive tech barrier. Challengers like Sunlord and YAGEO are currently yield-locked at 0201, leaving TDK and Murata as the exclusive suppliers for next-gen 6G modules.</p>
+            <h1>5. Device Modeling: Automotive & EVs</h1>
+            <p>Electric Vehicles represent the ultimate "Component Density Sink." An EV chassis requires nearly 3x the inductor volume of a legacy ICE vehicle, focusing on battery management systems (BMS) and traction inverters.</p>
             <table>
-                <thead><tr><th>Size (Imperial)</th><th>Tech Barrier</th><th>Yield Stability</th><th>Status</th></tr></thead>
+                <thead><tr><th>Vehicle Type</th><th>2025 Bn units</th><th>2035 Bn units</th><th>CAGR</th></tr></thead>
                 <tbody>
-                    <tr><td>0201 / 0603</td><td>Medium</td><td>98%</td><td>Mass Commodity</td></tr>
-                    <tr><td>01005 / 0402</td><td>Extreme</td><td>82%</td><td>Strategic Moat</td></tr>
+                    <tr><td>Electric Vehicles (EV)</td><td>3.50</td><td>10.53</td><td>11.6%</td></tr>
+                    <tr><td>ICE / HEV</td><td>3.71</td><td>3.60</td><td>-0.30%</td></tr>
                 </tbody>
             </table>
         </article>
 
         <article id="ch6" class="chapter-content max-w-5xl mx-auto">
-            <h1>9-11. Regional Deep Dives (US, EU, APAC)</h1>
-            <p>Revenue growth is highest in India (6.5% CAGR) due to localization mandates. China remains the volume anchor but exhibits the highest risk of "Mother-Factory" IP leakage to domestic players.</p>
-            <table>
-                <thead><tr><th>Region</th><th>2025 Rev ($Mn)</th><th>2035 Rev ($Mn)</th><th>Priority</th></tr></thead>
-                <tbody>
-                    <tr><td>United States</td><td>$146.58</td><td>$214.84</td><td>Tier 1 (Design)</td></tr>
-                    <tr><td>Germany</td><td>$43.63</td><td>$65.76</td><td>Tier 1 (Auto)</td></tr>
-                    <tr><td>India</td><td>$134.42</td><td>$253.32</td><td>Tier 2 (Scale)</td></tr>
-                </tbody>
-            </table>
+            <h1>6. Device Modeling: IoT Edge Modules</h1>
+            <p>IoT modules generate a massive, undeniable volume tailwind (27.0 Bn units by 2035). However, the segment remains overwhelmingly volume-dependent, prioritizing raw scale over individual premium pricing.</p>
         </article>
 
         <article id="ch7" class="chapter-content max-w-5xl mx-auto">
-            <h1>12-14. Competitive Share & Challenger Analysis</h1>
-            <p>The Japanese oligopoly (Murata, TDK) still controls >50% share, but regional challengers are moving up the AEC-Q200 curve. Samsung EM is aggressively bridging from consumer MLCCs into Inductor niches.</p>
-            <div class="teaser-banner"><span>🔒</span> Granular Net Profit Margin Comparison Masked.</div>
-            <table class="frost-lock">
-                <thead><tr><th>Company</th><th>Gross Margin</th><th>Op Margin</th><th>Yield Index</th></tr></thead>
-                <tbody>
-                    <tr><td>Murata</td><td>[LOCKED]</td><td>[LOCKED]</td><td>Elite</td></tr>
-                    <tr><td>Sunlord</td><td>[LOCKED]</td><td>[LOCKED]</td><td>Medium</td></tr>
-                </tbody>
-            </table>
+            <h1>7. Application & Use-Case Expansion</h1>
+            <p>Emerging applications like <strong>Power-over-Coax (PoC)</strong> and <strong>NFC Coupling</strong> are converting traditional signal routing pathways into high-impedance value pools, demanding highly specialized multilayer configurations.</p>
         </article>
 
         <article id="ch8" class="chapter-content max-w-5xl mx-auto">
-            <h1>15-17. Value Chain, Capacity & Geopolitics</h1>
-            <p>US Section 122 and IEEPA ad valorem duties permanently distort landed costs. Vietnam (ASEAN) emerges as the vital "Tariff Bypass" node for TDK’s global supply chain resilience.</p>
+            <h1>8. Product Benchmarking & Miniaturization</h1>
+            <p>01005 (imperial) architectures represent the absolute pinnacle of current electrical engineering. Mastering yield stability at this scale serves as a nearly impenetrable tech moat against 80% of regional competitors.</p>
             <table>
-                <thead><tr><th>Geography</th><th>Premium Factor</th><th>Combined Multiplier</th><th>2035 Implication</th></tr></thead>
+                <thead><tr><th>Size (Imperial)</th><th>Tech Barrier</th><th>Yield Sensitivity</th><th>Moat Level</th></tr></thead>
                 <tbody>
-                    <tr><td>United States</td><td>1.10</td><td>1.188</td><td>Max Landed Cost</td></tr>
-                    <tr><td>Vietnam</td><td>0.88</td><td>0.836</td><td>ASEAN Growth / Bypass</td></tr>
+                    <tr><td>0402</td><td>Standard</td><td>Low</td><td>Low</td></tr>
+                    <tr><td>0201</td><td>High</td><td>Medium</td><td>High</td></tr>
+                    <tr><td>01005</td><td>Elite</td><td>Extreme</td><td>Maximum</td></tr>
                 </tbody>
             </table>
         </article>
 
-        <article id="ch9" class="chapter-content max-w-5xl mx-auto">
-            <h1>18-20. Strategic Scenarios & TDK Playbook</h1>
-            <p>The "Upside Case" ($2.31Bn) depends on hyper-acceleration of 6G test-beds. TDK's win-zone is identified as Power-over-Coax (PoC) networks for Level 4 Autonomous modules.</p>
-            <div class="insight-highlight">"TDK must treat its Ouchi and Akita mother-factories as specialized capability anchors, intentionally abandoning low-ground volume wars to dominate the specialized intersection of mobility and connectivity."</div>
-            <div class="teaser-banner"><span>🔒</span> Chapter 20: 10-Year Capex & ROI Roadmap Locked.</div>
+        <article id="ch9" class="chapter-content max-w-5xl mx-auto"><h1>9. Regional Analysis: North America</h1><p>US remains the premier nexus for hardware design Wins. Strategic focus must stay on Silicon Valley reference designs to lock-in downstream Asian production.</p></article>
+        <article id="ch10" class="chapter-content max-w-5xl mx-auto"><h1>10. Regional Analysis: Europe</h1><p>Germany commands the high-margin automotive sector. Tier-1 partnerships here are mandatory for 10-year revenue visibility.</p></article>
+        <article id="ch11" class="chapter-content max-w-5xl mx-auto">
+            <h1>11. Regional Analysis: Asia Pacific</h1>
+            <p>India is the breakout growth frontier (+7.3% CAGR), while China remains the volume anchor. Footprint diversification (Vietnam) is now a mandatory risk mitigation strategy.</p>
+            <div class="teaser-box">🔒 45-Country corridor unit flow analysis locked.</div>
+        </article>
+
+        <article id="ch12" class="chapter-content max-w-5xl mx-auto">
+            <h1>12. Competitive Landscape: Market Share</h1>
+            <p>The market is a concentrated oligopoly. The top 5 players command 87% share. Japanese engineering remains the dominant gravitational force.</p>
+            <table>
+                <thead><tr><th>Tier</th><th>Share (%)</th><th>Primary Moat</th></tr></thead>
+                <tbody>
+                    <tr><td>Elite (TDK/Murata)</td><td>53.0%</td><td>Material Science / 01005</td></tr>
+                    <tr><td>Challengers (Sunlord/YAGEO)</td><td>13.0%</td><td>Local Scale / Price Attrition</td></tr>
+                </tbody>
+            </table>
+        </article>
+        <article id="ch13" class="chapter-content max-w-5xl mx-auto"><h1>13. Competitor Profiling: Murata & Samsung</h1><p>Murata's LQP02HQ_Z2 series exemplifies the transfer of mobile tech into Auto-RF. Samsung E-M leverages internal MLCC synergies to undercut power inductor competitors.</p></article>
+        <article id="ch14" class="chapter-content max-w-5xl mx-auto"><h1>14. Competitor Profiling: Regional Challengers</h1><p>Sunlord and YAGEO are yield-locking 0201 formats, threatening legacy Japanese margins in high-volume smartphone lines.</p></article>
+
+        <article id="ch15" class="chapter-content max-w-5xl mx-auto">
+            <h1>15. Value Chain & Profit Pool</h1>
+            <p>Profit pools are unevenly distributed. Testing and Automotive Qualification protocols generate 2.5x the EBITDA per unit compared to pure physical layering.</p>
+        </article>
+        <article id="ch16" class="chapter-content max-w-5xl mx-auto"><h1>16. Capacity & Supply Balance</h1><p>A "China+1" strategy is now the industry standard to bypass geopolitical supply shocks. Vietnam expansion is the primary capacity vector for 2030.</p></article>
+        <article id="ch17" class="chapter-content max-w-5xl mx-auto">
+            <h1>17. Trade & Tariff Analysis</h1>
+            <p>US IEEPA and Section 122 duties create massive landed-cost distortions. Vietnam (ASEAN) provides a critical 0.83x multiplier advantage for tariff bypass.</p>
+        </article>
+
+        <article id="ch18" class="chapter-content max-w-5xl mx-auto">
+            <h1>18. Strategic Scenarios</h1>
+            <p>Upside Case ($2.31Bn) depends on hyper-adoption of redundant ADAS sensors. Downside ($1.91Bn) assumes prolonged consumer stagnation and 6G launch delays.</p>
+        </article>
+        <article id="ch19" class="chapter-content max-w-5xl mx-auto">
+            <h1>19. TDK Strategy: Win/Loss Matrix</h1>
+            <p>TDK wins by monopolizing Reference Designs in Automotive PoC and sub-0402 RF Matching. TDK "Loses" (retreats) in standard NFC filtering to protect overall group margins.</p>
+        </article>
+        <article id="ch20" class="chapter-content max-w-5xl mx-auto">
+            <h1>20. Recommendations & Roadmap</h1>
+            <p>Capital must be aggressively diverted away from legacy formats toward high-temperature materials. The Ouchi and Akita mother-factories must become innovation-only anchors.</p>
+            <div class="teaser-box">🔒 10-Year Capex & ROI roadmap (NPV Analysis) restricted to full report.</div>
         </article>
 
     </main>
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            const numChapters = 9; // Grouped for UI brevity in teaser
+            const numChapters = 20;
             const navContainer = document.getElementById('sidebar-nav');
             const chapters = document.querySelectorAll('.chapter-content');
             
             const titles = [
-                "Executive Summary & Objectives",
-                "Market Core & Volume",
-                "Pricing & Value dynamics",
-                "Demand Engines & Project Pipeline",
-                "Tech Moats & Miniaturization",
-                "Regional Analysis & Hotspots",
-                "Competitive Control & Share",
-                "Value Chain & Geopolitics",
-                "Strategic Playbook & ROI"
+                "Executive Summary", "Global Size & Volume", "Pricing Dynamics", "Smartphones & Wearables",
+                "Automotive & EVs", "IoT Edge Modules", "Use-Case Expansion", "Miniaturization Trends",
+                "Regional: N. America", "Regional: Europe", "Regional: APAC", "Competitive Landscape",
+                "Murata & Samsung Profiles", "Challenger Profiles", "Value Chain & Profits", "Capacity Balance",
+                "Trade & Tariffs", "Strategic Scenarios", "TDK Win/Loss Matrix", "Investment Roadmap"
             ];
 
-            // Generate Nav
             for (let i = 1; i <= numChapters; i++) {
                 const navItem = document.createElement('div');
-                navItem.className = "nav-item px-8 py-3.5 text-xs font-bold uppercase tracking-widest";
+                navItem.className = "nav-item px-8 py-2.5 text-[11px] font-bold uppercase tracking-widest";
                 if(i === 1) navItem.classList.add('active');
                 navItem.innerText = i + ". " + titles[i-1];
                 navItem.dataset.target = 'ch' + i;
@@ -376,8 +397,6 @@ RAW_HTML_CONTENT = """
 </html>
 """
 
-# Dynamic Replacement
+# Render
 final_html = RAW_HTML_CONTENT.replace("__LOGO_PLACEHOLDER__", html_logo)
-
-# Render HTML inside Streamlit container
 components.html(final_html, height=850, scrolling=True)
