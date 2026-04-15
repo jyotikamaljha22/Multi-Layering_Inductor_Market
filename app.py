@@ -1935,7 +1935,7 @@ def render_chapter_page(title: str, nav_options: list[str]) -> None:
         st.markdown(html_content, unsafe_allow_html=True)
 
     st.markdown("</div></div>", unsafe_allow_html=True)
-    render_prev_next(nav_options, title)
+    
 
     st.markdown("""
     ---
