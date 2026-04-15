@@ -1951,39 +1951,35 @@ def render_chapter_page(title: str, nav_options: list[str]) -> None:
 def render_login() -> None:
     inject_css(login_mode=True)
     
-    st.markdown("""
-    <style>
-    .login-box {
-        background: linear-gradient(135deg, #5B0F2E, #7A1C3A);
-        padding: 50px;
-        border-radius: 20px;
-        text-align: center;
-        color: white;
-        max-width: 400px;
-        margin: auto;
-        margin-top: 120px;
-        box-shadow: 0px 10px 30px rgba(0,0,0,0.2);
-    }
-    </style>
-    """, unsafe_allow_html=True)
-
-    st.markdown('<div class="login-box">', unsafe_allow_html=True)
-
-    st.markdown("## SMR BOARDROOM ACCESS")
-
-    name = st.text_input("Name")
-    password = st.text_input("Password", type="password")
-
-    if st.button("Enter"):
-        if password == "SMR2026":
-            st.session_state.authenticated = True
-            st.session_state.visitor_name = name
-            st.session_state.nav_choice = "Overview"
-            st.rerun()
-        else:
-            st.error("Incorrect password")
-
-    st.markdown('</div>', unsafe_allow_html=True)
+    # Center the login form using columns
+    _, col, _ = st.columns([1, 1.2, 1])
+    
+    with col:
+        # Add some top margin to push it down
+        st.markdown("<div style='margin-top: 120px;'></div>", unsafe_allow_html=True)
+        
+        # Use a native Streamlit container so the inputs actually stay inside
+        with st.container(border=True):
+            st.markdown("""
+                <h2 style='text-align: center; color: #5B0F2E; padding-bottom: 15px;'>
+                    SMR BOARDROOM ACCESS
+                </h2>
+            """, unsafe_allow_html=True)
+            
+            name = st.text_input("Name", placeholder="Enter your name")
+            password = st.text_input("Password", type="password", placeholder="Enter password")
+            
+            st.markdown("<br>", unsafe_allow_html=True)
+            
+            # CRITICAL FIX: type="primary" prevents the CSS from hiding the button
+            if st.button("Enter Dashboard", type="primary", use_container_width=True):
+                if password == "SMR2026":
+                    st.session_state.authenticated = True
+                    st.session_state.visitor_name = name.strip()
+                    st.session_state.nav_choice = "Overview"
+                    st.rerun()
+                else:
+                    st.error("Incorrect password")
 
 
 # -----------------------------
