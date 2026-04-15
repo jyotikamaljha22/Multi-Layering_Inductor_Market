@@ -1951,7 +1951,7 @@ st.markdown(
         flex-wrap: wrap;
         gap: 10px;
     ">
-        st.markdown(
+st.markdown(
     """
     <div style="
         margin-top: 30px;
@@ -1985,7 +1985,6 @@ st.markdown(
     """,
     unsafe_allow_html=True
 )
-
 def render_login() -> None:
     inject_css(login_mode=True)
     _, col, _ = st.columns([1, 1.2, 1])
