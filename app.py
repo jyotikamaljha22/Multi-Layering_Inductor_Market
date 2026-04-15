@@ -1966,17 +1966,17 @@ st.markdown(
         gap: 10px;
     ">
         <div style="font-size: 13px; color: #5B0F2E; font-weight: 600;">
-            Confidential & Proprietary © 2026 Strategic Market Research
+            Confidential &amp; Proprietary © 2026 Strategic Market Research
         </div>
 
         <div style="font-size: 13px; color: #7A163F;">
             Access full report:
             <a href="mailto:info@strategicmarketresearch.com"
                style="
-                   color:#5B0F2E;
-                   font-weight:700;
-                   text-decoration:none;
-                   margin-left:6px;
+                   color: #5B0F2E;
+                   font-weight: 700;
+                   text-decoration: none;
+                   margin-left: 6px;
                ">
                info@strategicmarketresearch.com
             </a>
