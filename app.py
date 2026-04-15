@@ -1289,24 +1289,6 @@ def inject_css(login_mode: bool = False) -> None:
                 max-width: 780px;
             }}
 
-            .hero-badges {{
-                display: flex;
-                flex-wrap: wrap;
-                gap: 10px;
-                margin-top: 20px;
-            }}
-
-            .hero-badge {{
-                background: rgba(255,255,255,0.10);
-                border: 1px solid rgba(255,255,255,0.16);
-                border-radius: 999px;
-                padding: 8px 14px;
-                font-size: 12px;
-                font-weight: 700;
-                color: #FFF7FA;
-                backdrop-filter: blur(10px);
-            }}
-
             .metric-card {{
                 background: rgba(255,255,255,0.96);
                 border: 1px solid {BORDER};
@@ -1695,11 +1677,6 @@ def render_hero() -> None:
             <div class="hero-kicker">Boardroom Preview Dashboard</div>
             <div class="hero-title">Global Multilayer Inductor Market (2025–2035)</div>
             <div class="hero-subtitle">Demand expansion, RF complexity, automotive qualification, and portfolio strategy — translated into a dynamic executive dashboard for TDK.</div>
-            <div class="hero-badges">
-                <div class="hero-badge">Tier 3 SMR presentation layer</div>
-                <div class="hero-badge">Confidential preview environment</div>
-                <div class="hero-badge">Full chapter fidelity retained</div>
-            </div>
         </div>
         """,
         unsafe_allow_html=True,
@@ -1900,7 +1877,7 @@ def render_chapter_page(title: str, nav_options: list[str]) -> None:
     
     html_content = CHAPTERS[title]
     
-    # Inject placeholders for storytelling charts
+    # 1. Inject placeholders for storytelling charts
     if title.startswith("1. "):
         html_content = html_content.replace("</p>\n<table>", "</p>\n\n<table>")
     elif title.startswith("3. "):
@@ -1912,7 +1889,7 @@ def render_chapter_page(title: str, nav_options: list[str]) -> None:
     elif title.startswith("18. "):
         html_content = html_content.replace("</div>\n<p>", "</div>\n\n<p>")
 
-    # Safely split by the marker
+    # 2. SAFELY SPLIT BY THE EXACT MARKER
     parts = html_content.split("")
     
     st.markdown(parts[0], unsafe_allow_html=True)
@@ -1981,7 +1958,6 @@ def render_login() -> None:
                     st.rerun()
                 else:
                     st.error("Incorrect password")
-
 
 # -----------------------------
 # APP
