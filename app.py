@@ -1,173 +1,229 @@
 import streamlit as st
+import matplotlib.pyplot as plt
 import pandas as pd
-import plotly.graph_objects as go
 
-# -----------------------------
+# ================================
 # CONFIG
-# -----------------------------
+# ================================
 st.set_page_config(layout="wide")
 
-# -----------------------------
-# BRAND COLORS
-# -----------------------------
-BURGUNDY = "#5B0F2E"
-BG_LIGHT = "#F6F2F4"
-WHITE = "#FFFFFF"
+PASSWORD = "SMR2026"
 
-# -----------------------------
-# THEME
-# -----------------------------
-dark_mode = st.sidebar.toggle("Dark Mode")
+# ================================
+# SESSION STATE
+# ================================
+if "logged_in" not in st.session_state:
+    st.session_state.logged_in = False
 
-if dark_mode:
-    bg = "#0E1117"
-    text = "white"
-    template = "plotly_dark"
-else:
-    bg = BG_LIGHT
-    text = "#000"
-    template = "plotly_white"
+if "nav_choice" not in st.session_state:
+    st.session_state.nav_choice = "1. Executive Summary"
 
-st.markdown(f"""
+# ================================
+# CSS (CLEAN + PREMIUM)
+# ================================
+st.markdown("""
 <style>
-body {{
-    background-color: {bg};
-    color: {text};
-}}
+#MainMenu {visibility: hidden;}
+header {visibility: hidden;}
+footer {visibility: hidden;}
+
+body {
+    background-color: #F5F1F3;
+}
+
+h1, h2, h3 {
+    color: #5B0F2E;
+}
+
+.stButton>button {
+    background-color: #5B0F2E;
+    color: white;
+    border-radius: 10px;
+}
 </style>
 """, unsafe_allow_html=True)
 
-# -----------------------------
+# ================================
 # LOGIN
-# -----------------------------
-if "logged" not in st.session_state:
-    st.session_state.logged = False
-
+# ================================
 def login():
-    st.markdown(f"""
-    <div style="background:{BURGUNDY};padding:40px;border-radius:15px;text-align:center;color:white;width:400px;margin:auto;margin-top:120px;">
-        <h2>SMR BOARDROOM ACCESS</h2>
-    </div>
+    st.markdown("""
+    <style>
+    .login-box {
+        background: linear-gradient(135deg, #5B0F2E, #7A1C3A);
+        padding: 50px;
+        border-radius: 20px;
+        text-align: center;
+        color: white;
+        max-width: 400px;
+        margin: auto;
+        margin-top: 120px;
+    }
+    </style>
     """, unsafe_allow_html=True)
 
+    st.markdown('<div class="login-box">', unsafe_allow_html=True)
+    st.markdown("## SMR BOARDROOM ACCESS")
+
     name = st.text_input("Name")
-    pwd = st.text_input("Password", type="password")
+    password = st.text_input("Password", type="password")
 
     if st.button("Enter"):
-        if pwd == "SMR2026":
-            st.session_state.logged = True
+        if password == PASSWORD:
+            st.session_state.logged_in = True
             st.rerun()
         else:
             st.error("Incorrect password")
 
-if not st.session_state.logged:
+    st.markdown('</div>', unsafe_allow_html=True)
+
+if not st.session_state.logged_in:
     login()
     st.stop()
 
-# -----------------------------
+# ================================
 # NAVIGATION
-# -----------------------------
-chapters = list(CHAPTERS.keys())
+# ================================
+chapters = [
+    "1. Executive Summary",
+    "2. Market Definition",
+    "3. TAM Forecast",
+    "4. Segmentation",
+    "5. Demand Engine",
+    "7. Pricing",
+    "11. Competitive Landscape",
+    "18. Scenarios",
+    "20. Strategy"
+]
 
-if "nav" not in st.session_state:
-    st.session_state.nav = chapters[0]
+st.sidebar.title("SMR Dashboard")
+selected = st.sidebar.radio("Navigation", chapters, key="nav_choice")
 
-st.session_state.nav = st.sidebar.radio("Chapters", chapters)
-
-# -----------------------------
-# SCENARIO
-# -----------------------------
-scenario = st.sidebar.selectbox("Scenario", ["Base", "Upside", "Downside"])
-
-def get_market():
-    if scenario == "Base":
-        return [1446,1727,2115]
-    elif scenario == "Upside":
-        return [1578,1885,2308]
-    else:
-        return [1305,1558,1908]
-
-# -----------------------------
+# ================================
 # CHARTS
-# -----------------------------
-def market_chart():
-    years = [2025,2030,2035]
-    data = get_market()
+# ================================
+def chart_market():
+    years = [2025, 2030, 2035]
+    revenue = [1446, 1727, 2115]
+    volume = [85, 112, 146]
 
-    fig = go.Figure()
-    fig.add_trace(go.Scatter(
-        x=years,
-        y=data,
-        mode='lines+markers',
-        line=dict(width=4,color=BURGUNDY)
-    ))
+    fig, ax1 = plt.subplots()
 
-    fig.update_layout(
-        title="Market Growth",
-        template=template
-    )
+    ax1.bar(years, revenue)
+    ax1.set_ylabel("Revenue ($Mn)")
 
-    st.plotly_chart(fig, use_container_width=True)
+    ax2 = ax1.twinx()
+    ax2.plot(years, volume, marker='o')
+    ax2.set_ylabel("Volume")
 
-def segment_chart():
-    fig = go.Figure(data=[
-        go.Bar(name="RF", x=["2025","2030","2035"], y=[839,973,1143]),
-        go.Bar(name="Ferrite", x=["2025","2030","2035"], y=[474,560,672]),
-        go.Bar(name="Auto", x=["2025","2030","2035"], y=[132,193,299]),
-    ])
+    st.pyplot(fig)
 
-    fig.update_layout(barmode="stack", template=template, title="Segment Mix")
-    st.plotly_chart(fig, use_container_width=True)
+def chart_segment():
+    years = ["2025","2030","2035"]
+    rf = [839,973,1143]
+    ferrite = [474,560,672]
+    auto = [132,193,299]
 
-def scenario_chart():
-    fig = go.Figure(data=[
-        go.Bar(x=["Base","Upside","Downside"], y=[2115,2308,1908])
-    ])
+    fig, ax = plt.subplots()
 
-    fig.update_layout(title="Scenario Comparison", template=template)
-    st.plotly_chart(fig, use_container_width=True)
+    ax.bar(years, rf, label="RF")
+    ax.bar(years, ferrite, bottom=rf, label="Ferrite")
 
-# -----------------------------
-# PRESENTATION MODE
-# -----------------------------
-presentation = st.sidebar.toggle("Presentation Mode")
+    bottom2 = [rf[i]+ferrite[i] for i in range(3)]
+    ax.bar(years, auto, bottom=bottom2, label="Auto")
 
-if presentation:
-    st.markdown(f"""
-    <div style="background:{BURGUNDY};padding:50px;border-radius:20px;color:white;text-align:center;">
-        <h1>{st.session_state.nav}</h1>
-        <p>{scenario} Scenario</p>
-    </div>
-    """, unsafe_allow_html=True)
+    ax.legend()
+    st.pyplot(fig)
 
-# -----------------------------
-# RENDER CONTENT
-# -----------------------------
-chapter_html = CHAPTERS[st.session_state.nav]
+# ================================
+# PAGES
+# ================================
 
-# Insert charts inside chapters strategically
-if "Executive Summary" in st.session_state.nav:
-    st.markdown(chapter_html, unsafe_allow_html=True)
-    market_chart()
+if selected == "1. Executive Summary":
+    st.title("Executive Summary")
 
-elif "Segmentation" in st.session_state.nav:
-    st.markdown(chapter_html, unsafe_allow_html=True)
-    segment_chart()
+    st.write("Market is shifting toward automotive premiumization.")
 
-elif "Scenario" in st.session_state.nav:
-    st.markdown(chapter_html, unsafe_allow_html=True)
-    scenario_chart()
+    chart_market()
 
-else:
-    st.markdown(chapter_html, unsafe_allow_html=True)
+elif selected == "3. TAM Forecast":
+    st.title("TAM Forecast")
 
-# -----------------------------
+    st.write("Growth driven by device density.")
+
+    chart_market()
+
+elif selected == "4. Segmentation":
+    st.title("Segmentation")
+
+    st.write("Automotive growing fastest.")
+
+    chart_segment()
+
+elif selected == "7. Pricing":
+    st.title("Pricing Dynamics")
+
+    df = pd.DataFrame({
+        "Year":[2025,2030,2035],
+        "ASP":[0.016,0.015,0.014]
+    })
+
+    st.line_chart(df.set_index("Year"))
+
+elif selected == "11. Competitive Landscape":
+    st.title("Competitive Landscape")
+
+    df = pd.DataFrame({
+        "Player":["Player 1","Player 2","Player 3"],
+        "Share":[30,22,9]
+    })
+
+    st.bar_chart(df.set_index("Player"))
+
+elif selected == "18. Scenarios":
+    st.title("Scenarios")
+
+    df = pd.DataFrame({
+        "Year":[2025,2030,2035],
+        "Base":[1446,1727,2115],
+        "Upside":[1500,1850,2300],
+        "Downside":[1300,1550,1900]
+    })
+
+    st.line_chart(df.set_index("Year"))
+
+elif selected == "20. Strategy":
+    st.title("Strategy")
+
+    st.write("Focus on automotive + RF premium.")
+
+# ================================
+# NEXT / PREVIOUS (FIXED)
+# ================================
+idx = chapters.index(selected)
+
+col1, col2 = st.columns(2)
+
+with col1:
+    if idx > 0:
+        if st.button("⬅ Previous"):
+            st.session_state["nav_choice"] = chapters[idx - 1]
+            st.rerun()
+
+with col2:
+    if idx < len(chapters) - 1:
+        if st.button("Next ➡"):
+            st.session_state["nav_choice"] = chapters[idx + 1]
+            st.rerun()
+
+# ================================
 # FOOTER
-# -----------------------------
+# ================================
 st.markdown("""
 ---
 **Confidential & Proprietary**  
 © 2026 Strategic Market Research  
 
-To access the full report: info@strategicmarketresearch.com
+To access the full report:  
+info@strategicmarketresearch.com
 """)
