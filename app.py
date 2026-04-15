@@ -1909,21 +1909,6 @@ def render_overview() -> None:
         unsafe_allow_html=True,
     )
 
-def render_prev_next(options: list[str], current: str) -> None:
-    idx = options.index(current)
-    col1, col2 = st.columns([1, 1])
-
-    with col1:
-        if idx > 0:
-            if st.button("⬅ Previous"):
-                st.session_state["nav_choice"] = options[idx - 1]
-                st.rerun()
-
-    with col2:
-        if idx < len(options) - 1:
-            if st.button("Next ➡"):
-                st.session_state["nav_choice"] = options[idx + 1]
-                st.rerun()
 
 def render_chapter_page(title: str, nav_options: list[str]) -> None:
     st.markdown(
