@@ -1936,42 +1936,6 @@ def render_chapter_page(title: str, nav_options: list[str]) -> None:
 
     st.markdown("</div></div>", unsafe_allow_html=True)
     
-
-
-st.markdown(
-    """
-    <div style="
-        margin-top: 30px;
-        padding: 18px 22px;
-        border-radius: 18px;
-        background: linear-gradient(135deg, #FAF2F5 0%, #F3E3EA 100%);
-        border: 1px solid #E7D3DD;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        flex-wrap: wrap;
-        gap: 10px;
-    ">
-        <div style="font-size: 13px; color: #5B0F2E; font-weight: 600;">
-            Confidential &amp; Proprietary © 2026 Strategic Market Research
-        </div>
-
-        <div style="font-size: 13px; color: #7A163F;">
-            Access full report:
-            <a href="mailto:info@strategicmarketresearch.com"
-               style="
-                   color: #5B0F2E;
-                   font-weight: 700;
-                   text-decoration: none;
-                   margin-left: 6px;
-               ">
-               info@strategicmarketresearch.com
-            </a>
-        </div>
-    </div>
-    """,
-    unsafe_allow_html=True
-)
 def render_login() -> None:
     inject_css(login_mode=True)
     _, col, _ = st.columns([1, 1.2, 1])
@@ -2049,10 +2013,45 @@ if st.sidebar.button("Logout", use_container_width=True):
     st.rerun()
 
 st.markdown('<div class="main-shell">', unsafe_allow_html=True)
-
 if st.session_state.nav_choice == "Overview":
     render_overview()
 else:
     render_chapter_page(st.session_state.nav_choice, nav_options)
 
 st.markdown('</div>', unsafe_allow_html=True)
+
+# ✅ FOOTER (correct placement)
+st.markdown(
+    """
+    <div style="
+        margin-top: 30px;
+        padding: 18px 22px;
+        border-radius: 18px;
+        background: linear-gradient(135deg, #FAF2F5 0%, #F3E3EA 100%);
+        border: 1px solid #E7D3DD;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 10px;
+    ">
+        <div style="font-size: 13px; color: #5B0F2E; font-weight: 600;">
+            Confidential &amp; Proprietary © 2026 Strategic Market Research
+        </div>
+
+        <div style="font-size: 13px; color: #7A163F;">
+            Access full report:
+            <a href="mailto:info@strategicmarketresearch.com"
+               style="
+                   color: #5B0F2E;
+                   font-weight: 700;
+                   text-decoration: none;
+                   margin-left: 6px;
+               ">
+               info@strategicmarketresearch.com
+            </a>
+        </div>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
