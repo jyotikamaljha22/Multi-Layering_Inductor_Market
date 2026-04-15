@@ -1900,7 +1900,7 @@ def render_chapter_page(title: str, nav_options: list[str]) -> None:
     
     html_content = CHAPTERS[title]
     
-# Inject placeholders for storytelling charts
+    # Inject placeholders for storytelling charts
     if title.startswith("1. "):
         html_content = html_content.replace("</p>\n<table>", "</p>\n\n<table>")
     elif title.startswith("3. "):
@@ -1912,12 +1912,7 @@ def render_chapter_page(title: str, nav_options: list[str]) -> None:
     elif title.startswith("18. "):
         html_content = html_content.replace("</div>\n<p>", "</div>\n\n<p>")
 
-    # ❌ CHANGE THIS LINE:
-    # parts = html_content.split("")
-    
-    # ✅ TO THIS LINE:
-    parts = html_content.split("")
-
+    # Safely split by the marker
     parts = html_content.split("")
     
     st.markdown(parts[0], unsafe_allow_html=True)
