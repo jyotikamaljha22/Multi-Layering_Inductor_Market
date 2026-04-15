@@ -15,7 +15,7 @@ import streamlit.components.v1 as components
 # PAGE CONFIG
 # =========================
 st.set_page_config(
-    page_title="Strategic Market Research | TDK Corporation",
+    page_title="Strategic Market Research | TDK Corporation Advisory",
     page_icon="📈",
     layout="wide",
     initial_sidebar_state="expanded", 
@@ -32,10 +32,7 @@ INK = "#1A1A1A"
 MUTED = "#6B7280"
 BORDER = "#E5E7EB"
 
-PREVIEW_NOTE = (
-    "SMR Confidential: Access restricted. Detailed unit-level data and competitive pricing "
-    "yields are available in the full premium report."
-)
+PREVIEW_NOTE = "SMR Confidential. Unit-level projections and competitive cost curves are restricted."
 
 @st.cache_data
 def load_logo_base64() -> str | None:
@@ -64,17 +61,14 @@ st.markdown(
 
     /* PERMANENT SIDEBAR LOCK */
     [data-testid="stSidebarCollapseButton"] {{ display: none !important; width: 0 !important; }}
-    
     [data-testid="stSidebar"] {{ background: {BURGUNDY_DARK} !important; border-right: 1px solid rgba(255,255,255,0.05) !important; }}
     [data-testid="stSidebar"] p, [data-testid="stSidebar"] div, [data-testid="stSidebar"] label {{ color: rgba(255,255,255,0.9) !important; }}
 
-    /* INPUT FIELDS */
+    /* --- INPUT FIELDS & BUTTONS --- */
     .stTextInput input {{
         border-radius: 8px !important; border: 1px solid #E5E7EB !important;
         padding: 12px 14px !important; background-color: #ffffff !important; color: #1A1A1A !important;
     }}
-
-    /* BUTTONS */
     .stButton > button {{
         background: linear-gradient(135deg, {GOLD} 0%, #A37F1C 100%) !important;
         color: {BURGUNDY_DARK} !important; border: none !important; border-radius: 8px !important;
@@ -93,7 +87,7 @@ st.markdown(
     /* HERO & CARDS */
     .hero {{
       background: linear-gradient(135deg, {BURGUNDY} 0%, {BURGUNDY_MID} 100%);
-      color: white; border-radius: 16px; padding: 34px 40px; margin-bottom: 32px;
+      color: white; border-radius: 16px; padding: 34px 40px; margin-bottom: 32px; position: relative; overflow: hidden;
     }}
     .metric-card {{
       background: white; border: 1px solid #E5E7EB; border-radius: 12px; padding: 24px;
@@ -107,8 +101,17 @@ st.markdown(
       margin-bottom: 24px; box-shadow: 0 8px 24px rgba(196,154,35,0.05);
     }}
     
-    .locked-table {{
-        filter: blur(2px); opacity: 0.5; pointer-events: none;
+    /* TEASER / LOCKED UI */
+    .locked-overlay {{
+        background: linear-gradient(180deg, rgba(255,255,255,0) 0%, rgba(255,255,255,1) 90%);
+        padding: 40px; text-align: center; border-radius: 0 0 12px 12px; margin-top: -60px; position: relative; z-index: 10;
+    }}
+    .blurred {{ filter: blur(4px); opacity: 0.4; pointer-events: none; }}
+    
+    .viewer-chip {{
+      display:inline-block; padding:6px 12px; border-radius:999px; font-size:0.75rem; font-weight:700;
+      background: rgba(255,255,255,0.1); color: {GOLD}; margin-top:10px; margin-bottom: 10px;
+      border: 1px solid rgba(255,255,255,0.15);
     }}
     </style>
     """,
@@ -122,8 +125,12 @@ components.html(
 )
 
 # =========================
-# HELPERS
+# CORE UI FUNCTIONS
 # =========================
+def brand_sidebar():
+    logo_html = f'<img src="data:image/svg+xml;base64,{LOGO_B64}" style="height:48px; width:auto; margin-bottom:12px; filter: brightness(0) invert(1);" />' if LOGO_B64 else ""
+    st.sidebar.markdown(f'<div class="smr-brand">{logo_html}<h1 style="color:white; margin:0; font-size:1.1rem; font-weight:800; letter-spacing:-0.02em; line-height:1.2;">Strategic Market Research</h1><p style="color:rgba(255,255,255,0.6); margin:4px 0 0 0; font-size:0.82rem; font-weight:500;">Multilayer Inductor Market<br>Executive Boardroom</p></div>', unsafe_allow_html=True)
+
 def card_metric(label: str, value: str, foot: str):
     st.markdown(f'<div class="metric-card"><div class="metric-label">{label}</div><div class="metric-value">{value}</div><div style="color:{MUTED}; font-size:0.8rem; margin-top:8px;">{foot}</div></div>', unsafe_allow_html=True)
 
@@ -137,133 +144,178 @@ def chart_theme(fig):
     fig.update_yaxes(gridcolor="rgba(0,0,0,0.05)", zeroline=False)
     return fig
 
+def render_teaser_lock(text="Full dataset unlocked with report purchase."):
+    st.markdown(f"""
+    <div class="locked-overlay">
+        <p style="color:{BURGUNDY}; font-weight:800; font-size:1.1rem;">🔒 ACCESS RESTRICTED</p>
+        <p style="color:{MUTED}; font-size:0.9rem; margin-bottom:15px;">{text}</p>
+        <button style="background:{BURGUNDY}; color:white; border:none; padding:8px 20px; border-radius:6px; font-weight:700; cursor:pointer;">Request Unlock</button>
+    </div>
+    """, unsafe_allow_html=True)
+
 # =========================
 # DATA ENGINE
 # =========================
 @st.cache_data
 def load_data():
     data = {}
-    # Overview
-    data["overview"] = pd.DataFrame({
+    data["market_rev"] = pd.DataFrame({
         "Year": ["2025", "2027", "2029", "2031", "2033", "2035"],
-        "Revenue ($Mn)": [1446.7, 1550.0, 1665.0, 1800.0, 1950.0, 2115.3],
-        "Units (Bn)": [77.0, 83.2, 90.1, 98.4, 107.0, 116.1]
+        "RF / High-Freq ($Mn)": [839.1, 890.0, 950.0, 1010.0, 1080.0, 1143.4],
+        "Auto-Qualified ($Mn)": [132.8, 155.0, 185.0, 220.0, 260.0, 299.6],
+        "Compact Ferrite ($Mn)": [474.8, 510.0, 545.0, 585.0, 630.0, 672.2]
     })
-    # Pricing
-    data["pricing"] = pd.DataFrame({
-        "Segment": ["RF / High-Freq", "Compact Ferrite", "Automotive-Qualified"],
-        "2025 Price ($)": [0.0220, 0.0135, 0.0360],
-        "2035 Price ($)": [0.0210, 0.0125, 0.0380],
-        "Trend": ["Deflationary", "Deflationary", "Appreciating"]
-    })
-    # TDK Position
-    data["tdk_strategy"] = pd.DataFrame({
-        "Target Segment": ["Auto-Qualified", "RF High-Freq", "Compact Ferrite"],
-        "TDK Advantage": ["Elite / AEC-Q200", "High-Q Leadership", "Scale-Locked"],
-        "Priority": ["Tier 1", "Tier 1", "Tier 2"]
-    })
+    data["units"] = pd.DataFrame({"Year": ["2025", "2035"], "Total Units (Bn)": [77.0, 116.1]})
     return data
 
 # =========================
-# VIEWS
+# RENDER VIEWS
 # =========================
-def render_overview(data):
-    st.markdown(f'<div class="hero"><h2>Executive Strategy Summary</h2><p>Global Multilayer Inductor Market (2025–2035). Strategic analysis for TDK Corporation leadership.</p></div>', unsafe_allow_html=True)
+def render_executive(data):
+    st.markdown('<div class="hero"><h2>Executive Strategy Summary</h2><p>Global Multilayer Inductor Market (2025–2035). Strategic analysis and positioning for TDK Corporation.</p></div>', unsafe_allow_html=True)
     
     c1, c2, c3, c4 = st.columns(4)
-    with c1: card_metric("2035 TAM", "$2.12 Bn", "Projected total market value.")
-    with c2: card_metric("Unit CAGR", "4.19%", "Physical manufacturing expansion.")
-    with c3: card_metric("Price Delta", "-0.32%", "Blended market price erosion.")
-    with c4: card_metric("Auto Share", "14.1%", "High-value segment penetration.")
+    with c1: card_metric("2035 Revenue Ceiling", "$2.12 Bn", "Projected total market value.")
+    with c2: card_metric("Auto-Grade CAGR", "8.48%", "Primary high-margin engine.")
+    with c3: card_metric("Unit Volume 2035", "116.1 Bn", "Global manufacturing load.")
+    with c4: card_metric("01005 Index", "Elite", "Maximum tech qualification.")
 
-    st.markdown('<div class="insight-box"><strong>Strategic Imperative:</strong> Market expansion is decoupling from pure unit volume. TDK must prioritize thermal reliability thresholds and 01005 miniaturization to defend margins against regional commodity challengers.</div>', unsafe_allow_html=True)
-    
+    st.markdown("""
+    <div class="insight-box">
+        <strong>Strategic Directive (Chapters 1-3):</strong> Value creation is rapidly decoupling from pure unit volumes. 
+        TDK must prioritize 165°C thermal stability and ultra-high-frequency (UHF) RF matching as the primary defense 
+        against the 3.5% CAGR commodity price erosion in consumer segments.
+    </div>
+    """, unsafe_allow_html=True)
+
     col1, col2 = st.columns([1.5, 1])
     with col1:
-        st.subheader("Global Market Trajectory: Revenue vs physical Volume")
-        df = data["overview"]
+        st.subheader("Market Expansion Trajectory by Key Segment ($Mn)")
+        df = data["market_rev"]
         fig = go.Figure()
-        fig.add_trace(go.Scatter(x=df["Year"], y=df["Revenue ($Mn)"], name="Revenue ($Mn)", line=dict(color=BURGUNDY, width=4)))
-        fig.add_trace(go.Bar(x=df["Year"], y=df["Units (Bn)"], name="Units (Bn)", yaxis="y2", marker_color=GOLD, opacity=0.6))
-        fig.update_layout(yaxis=dict(title="Revenue ($Mn)"), yaxis2=dict(title="Volume (Bn units)", overlaying="y", side="right", showgrid=False))
+        fig.add_trace(go.Scatter(x=df["Year"], y=df["RF / High-Freq ($Mn)"], name="RF / High-Freq", line=dict(color=BURGUNDY, width=4), stackgroup='one'))
+        fig.add_trace(go.Scatter(x=df["Year"], y=df["Compact Ferrite ($Mn)"], name="Compact Ferrite", line=dict(color=BURGUNDY_MID, width=1), stackgroup='one'))
+        fig.add_trace(go.Scatter(x=df["Year"], y=df["Auto-Qualified ($Mn)"], name="Automotive-Qualified", line=dict(color=GOLD, width=3), stackgroup='one'))
         st.plotly_chart(chart_theme(fig), use_container_width=True)
     
     with col2:
-        st.subheader("Structural Revenue Shift (2035)")
-        # Teasing the shift toward Automotive
-        fig = px.pie(values=[54, 32, 14], names=["RF / High-Freq", "Compact Ferrite", "Automotive"], hole=0.6, 
-                     color_discrete_sequence=[BURGUNDY_DARK, BURGUNDY_MID, GOLD])
+        st.subheader("Price Hierarchy Shift (2025 vs 2035)")
+        st.write("Unit prices for Automotive-grade are projected to appreciate, unlike consumer segments.")
+        df_p = pd.DataFrame({
+            "Segment": ["Auto Grade", "RF High-Q", "Standard Ferrite"],
+            "2025 ASP ($)": [0.0360, 0.0220, 0.0135],
+            "2035 ASP ($)": [0.0380, 0.0210, 0.0125]
+        })
+        fig = px.bar(df_p, x="Segment", y=["2025 ASP ($)", "2035 ASP ($)"], barmode="group", color_discrete_sequence=[BURGUNDY_DARK, GOLD])
         st.plotly_chart(chart_theme(fig), use_container_width=True)
 
-def render_pricing(data):
-    st.markdown('<div class="hero"><h2>Pricing & Value Dynamics</h2><p>Chapter 3: Analysis of ASP hierarchies and deflationary moats.</p></div>', unsafe_allow_html=True)
+def render_engines():
+    st.markdown('<div class="hero"><h2>Device-Level Demand Engines</h2><p>Chapters 4-6: From 5G Smartphones to EV Traction Inverters & IoT Modules.</p></div>', unsafe_allow_html=True)
     
-    st.write("### The Pricing Hierarchy ($ per unit)")
-    fig = px.bar(data["pricing"], x="Segment", y=["2025 Price ($)", "2035 Price ($)"], barmode="group",
-                 color_discrete_sequence=[BURGUNDY, GOLD])
-    st.plotly_chart(chart_theme(fig), use_container_width=True)
+    col1, col2 = st.columns([1, 1.2])
+    with col1:
+        st.subheader("Inductor Content Multiple (Units/Device)")
+        df_c = pd.DataFrame({"Device": ["Smartphone", "EV", "IoT Module", "Earwear"], "Content": [45, 140, 4, 18]})
+        fig = px.bar(df_c.sort_values("Content"), x="Content", y="Device", orientation="h", color="Content", color_continuous_scale=[[0, GOLD], [1, BURGUNDY]])
+        fig.update_layout(coloraxis_showscale=False)
+        st.plotly_chart(chart_theme(fig), use_container_width=True)
     
-    st.markdown('<div class="insight-box"><strong>Pricing Note:</strong> Automotive-qualified inductors represent the only category demonstrating positive price appreciation over the decade. All other segments require volume to offset ASP erosion.</div>', unsafe_allow_html=True)
+    with col2:
+        st.subheader("Global Project Pipeline (Sample)")
+        st.write("Preview of 2,000+ row database of named EV and 5G infrastructure rollouts.")
+        st.markdown("""
+        <div class="blurred">
+        | Project Name | Region | Expected Units | Launch Year |
+        | --- | --- | --- | --- |
+        | Project Alpha-9 | APAC | 5.2 Bn | 2027 |
+        | Tesla Giga V | NA | 1.8 Bn | 2028 |
+        | Vodafone 6G Test | EU | 0.9 Bn | 2031 |
+        </div>
+        """, unsafe_allow_html=True)
+        render_teaser_lock("Full Project Database contains specific 5G city-level rollout indices.")
 
-def render_demand_engines():
-    st.markdown('<div class="hero"><h2>Demand Engines & Device Modeling</h2><p>Chapters 4-6: From Smartphones to EVs and IoT modules.</p></div>', unsafe_allow_html=True)
+def render_miniaturization():
+    st.markdown('<div class="hero"><h2>Miniaturization & Tech Moats</h2><p>Chapter 8: The transition to 01005 architectures and embedded passives.</p></div>', unsafe_allow_html=True)
+    
+    st.subheader("Component Size Migration (Unit Share %)")
+    df_sz = pd.DataFrame({
+        "Year": ["2025", "2030", "2035"],
+        "0603/0402": [40, 25, 10],
+        "0201": [50, 55, 45],
+        "01005 (Elite)": [10, 20, 45]
+    })
+    fig = px.bar(df_sz, x="Year", y=["0603/0402", "0201", "01005 (Elite)"], barmode="stack", color_discrete_sequence=[BURGUNDY_DARK, BURGUNDY_MID, GOLD])
+    st.plotly_chart(chart_theme(fig), use_container_width=True)
+    st.markdown('<div class="insight-box"><strong>Tech Moat:</strong> 01005 architectures represent an impenetrable technical barrier for 80% of regional challengers. Mastering photolithography at this scale is TDK\'s primary margin defender.</div>', unsafe_allow_html=True)
+
+def render_regional():
+    st.markdown('<div class="hero"><h2>Geographic Concentration & Tariffs</h2><p>Chapters 9-11 & 17: Analyzing the "China+1" supply chain realignment.</p></div>', unsafe_allow_html=True)
     
     col1, col2 = st.columns(2)
     with col1:
-        st.subheader("Device Content Multiplier (Units/Device)")
-        df_dev = pd.DataFrame({
-            "Device": ["Smartphone (5G)", "Smartwatch", "EV Chassis", "IoT Module"],
-            "Inductor Content": [45, 18, 140, 4]
-        })
-        fig = px.bar(df_dev, x="Device", y="Inductor Content", color_discrete_sequence=[BURGUNDY_MID])
+        st.subheader("2035 Regional Revenue Hotspots")
+        df_reg = pd.DataFrame({"Region": ["China", "India", "USA", "Germany", "Japan"], "Rev": [560, 253, 215, 66, 73]})
+        fig = px.pie(df_reg, values="Rev", names="Region", hole=0.5, color_discrete_sequence=[BURGUNDY, GOLD, BURGUNDY_MID, BURGUNDY_SOFT, BORDER])
         st.plotly_chart(chart_theme(fig), use_container_width=True)
-        
+    
     with col2:
-        st.subheader("Strategic Growth Pools (2035)")
-        st.write("A detailed 2,000-row project database for named IoT and EV rollouts is available in the full report.")
-        st.info("🔒 Named Project Database: LOCKED (Access required)")
-        st.markdown('<div class="locked-table">| Project | Capacity | Region | Units |<br>| --- | --- | --- | --- |<br>| [REDACTED] | 1.2M | APAC | 5.4Bn |</div>', unsafe_allow_html=True)
+        st.subheader("Combined Market Multipliers (Landed Cost)")
+        st.write("Factoring in the impact of US Section 122 and IEEPA 20% tariffs.")
+        df_t = pd.DataFrame({
+            "Geography": ["United States", "Germany", "Japan", "Vietnam (Bypass)"],
+            "Multiplier": [1.188, 1.145, 1.134, 0.836]
+        })
+        fig = px.line(df_t, x="Geography", y="Multiplier", markers=True, color_discrete_sequence=[GOLD])
+        st.plotly_chart(chart_theme(fig), use_container_width=True)
+        render_teaser_lock("Tariff sensitivity analysis for 15 specific country corridors available in Chapter 17.")
 
 def render_competitive():
-    st.markdown('<div class="hero"><h2>Competitive Landscape</h2><p>Chapters 12-14: Market share control and challenger positioning.</p></div>', unsafe_allow_html=True)
+    st.markdown('<div class="hero"><h2>Competitive Control & Value Chain</h2><p>Chapters 12-16: The Japanese Oligopoly vs. Regional Challengers.</p></div>', unsafe_allow_html=True)
     
-    col1, col2 = st.columns([1, 1])
-    with col1:
-        st.subheader("Core Market Control (2025 Share)")
-        shares = pd.DataFrame({
-            "Competitor": ["Murata", "TDK", "Samsung EM", "Taiyo Yuden", "Regional Challengers"],
-            "Share": [31, 22, 9, 8, 30]
-        })
-        fig = px.pie(shares, values="Share", names="Competitor", hole=0.5, color_discrete_sequence=[BURGUNDY, GOLD, BURGUNDY_MID, BURGUNDY_SOFT, "#E5E7EB"])
-        st.plotly_chart(chart_theme(fig), use_container_width=True)
+    st.subheader("Tier 1 Strategic Capability Matrix (1-5)")
+    st.write("How TDK and Murata defend against Samsung EM and YAGEO.")
+    df_cap = pd.DataFrame({
+        "Company": ["TDK (Client)", "Murata", "Samsung EM", "Taiyo Yuden", "Sunlord"],
+        "Material Science": [5, 5, 4, 5, 3],
+        "Auto AEC-Q200": [5, 5, 5, 4, 3],
+        "01005 Yields": [5, 5, 4, 3, 2],
+        "Margin Health": ["Elite", "Elite", "High", "Mid", "Pressure"]
+    })
+    st.table(df_cap)
     
-    with col2:
-        st.subheader("Capability Benchmarking (1-5)")
-        st.write("How challengers (Sunlord, YAGEO) are moving up the tech curve.")
-        df_cap = pd.DataFrame({
-            "Competitor": ["TDK", "Murata", "Sunlord", "YAGEO"],
-            "RF Precision": [5, 5, 3, 2],
-            "Auto Grade": [5, 5, 3, 2],
-            "01005 Scaling": [5, 5, 2, 1]
-        })
-        st.dataframe(df_cap, use_container_width=True, hide_index=True)
+    st.subheader("Value Chain Profit Pools (2035 Model)")
+    df_vc = pd.DataFrame({
+        "Segment": ["Material Formulation", "Patterning/Layering", "Sintering", "Testing & Qualification"],
+        "Share of Profit": [35, 15, 10, 40]
+    })
+    fig = px.bar(df_vc, x="Share of Profit", y="Segment", orientation="h", color_discrete_sequence=[GOLD])
+    st.plotly_chart(chart_theme(fig), use_container_width=True)
+    st.info("Testing & Qualification generates the highest EBITDA per unit due to safety-critical certification premiums.")
 
-def render_tdk_strategy(data):
-    st.markdown('<div class="hero"><h2>TDK Strategic Roadmap</h2><p>Chapter 19-20: Segment prioritization and win/loss matrix.</p></div>', unsafe_allow_html=True)
+def render_tdk_strategy():
+    st.markdown('<div class="hero"><h2>TDK Win/Loss Matrix & Playbook</h2><p>Chapters 19-20: Final strategic recommendations and investment roadmap.</p></div>', unsafe_allow_html=True)
     
-    st.subheader("Segment Opportunity Mapping")
-    st.table(data["tdk_strategy"])
-    
-    st.markdown("""
-    <div class="insight-box">
-        <strong>Final Recommendation:</strong> TDK must utilize its elite Japanese manufacturing nodes (e.g., Ouchi Factory) purely as specialized capability anchors. 
-        <strong>Immediate Capital Allocation:</strong> Relentless expansion of AEC-Q200 production capacity for Power-over-Coax (PoC) automotive networks.
-    </div>
-    """, unsafe_allow_html=True)
-    
-    st.subheader("Investment Priority Index (LOCKED)")
-    st.write("Detailed NPV and ROI analysis for the Ouchi expansion is reserved for report holders.")
-    st.button("Request Unlock: Financial Valuation Appendix")
+    col1, col2 = st.columns(2)
+    with col1:
+        st.subheader("Strategic Playbook: Priorities")
+        st.markdown("""
+        - **WIN:** Automotive Power-over-Coax (PoC)
+        - **WIN:** Sub-0402 RF Matching
+        - **DEFEND:** Compact Ferrite (NFC)
+        - **AVOID:** Low-Q standardized generic kits
+        """)
+    with col2:
+        st.subheader("Investment Roadmap ($Mn)")
+        st.write("Recommended allocation of R&D capital through 2035.")
+        st.markdown("""
+        <div class="blurred">
+        | Initiative | Value Pool | Priority | CapEx |
+        | --- | --- | --- | --- |
+        | Ouchi Factory Retooling | $42.3M | Tier 1 | [HIDDEN] |
+        | 6G Ceramic dielectric | $63.5M | Tier 1 | [HIDDEN] |
+        </div>
+        """, unsafe_allow_html=True)
+        render_teaser_lock("Detailed NPV and ROI analysis for CapEx initiatives is restricted.")
 
 # =========================
 # AUTH GATEWAY
@@ -274,28 +326,26 @@ def check_access():
     if st.session_state.authenticated: return True
 
     if LOGO_B64:
-        st.markdown(f'<div style="text-align:center; margin-top:8vh;"><img src="data:image/svg+xml;base64,{LOGO_B64}" style="height:60px;" /></div>', unsafe_allow_html=True)
+        st.markdown(f'<div style="text-align:center; margin-top:10vh;"><img src="data:image/svg+xml;base64,{LOGO_B64}" style="height:65px;" /></div>', unsafe_allow_html=True)
 
-    st.markdown("<div style='margin-top: 5vh;'></div>", unsafe_allow_html=True)
     col1, col2, col3 = st.columns([1, 1.2, 1])
     with col2:
         with st.form("login_form"):
-            st.markdown(f"<h3 style='text-align:center; color:{BURGUNDY};'>🔐 Executive Access</h3>", unsafe_allow_html=True)
-            name = st.text_input("Name*")
-            email = st.text_input("Email*")
+            st.markdown(f"<h3 style='text-align:center; color:{BURGUNDY}; font-weight:800;'>🔐 Executive Authentication</h3>", unsafe_allow_html=True)
+            name = st.text_input("Full Name*")
             password = st.text_input("Access Code*", type="password")
-            enter = st.form_submit_button("Enter Dashboard", use_container_width=True)
+            enter = st.form_submit_button("Enter Boardroom", use_container_width=True)
 
     if enter:
         if password.strip() == expected_password:
             st.session_state.authenticated = True
             st.session_state.viewer_name = name.strip()
             st.rerun()
-        else: st.sidebar.error("❌ Invalid Access Code.")
+        else: st.error("❌ Invalid Access Code.")
     st.stop()
 
 # =========================
-# MAIN APP
+# MAIN ENTRY
 # =========================
 check_access()
 data = load_data()
@@ -305,24 +355,27 @@ with st.sidebar:
     st.markdown(f'<div class="viewer-chip">Verified: {st.session_state.viewer_name}</div>', unsafe_allow_html=True)
     
     page = st.sidebar.radio("", [
-        "Executive Strategy",
-        "Pricing & Value Dynamics",
-        "Demand Engines (Mobile/Auto)",
-        "Competitive Landscape",
-        "TDK Strategic Playbook",
-        "Appendix & Methodology"
+        "1. Executive Strategy",
+        "2. Demand Engines (Mobile/Auto)",
+        "3. Miniaturization Moats",
+        "4. Regional & Tariff Analysis",
+        "5. Competitive Control",
+        "6. TDK Strategic Playbook",
+        "7. Methodology & Appendix"
     ])
     
     st.markdown("---")
-    if st.button("End Session", use_container_width=True):
+    if st.button("🔒 End Secure Session", use_container_width=True):
         st.session_state.authenticated = False
         st.rerun()
 
-if page == "Executive Strategy": render_overview(data)
-elif page == "Pricing & Value Dynamics": render_pricing(data)
-elif page == "Demand Engines (Mobile/Auto)": render_demand_engines()
-elif page == "Competitive Landscape": render_competitive()
-elif page == "TDK Strategic Playbook": render_tdk_strategy(data)
+# ROUTING
+if "1." in page: render_executive(data)
+elif "2." in page: render_engines()
+elif "3." in page: render_miniaturization()
+elif "4." in page: render_regional()
+elif "5." in page: render_competitive()
+elif "6." in page: render_tdk_strategy()
 else:
-    st.markdown(f'<div class="hero"><h2>Methodology & Appendix</h2><p>Data triangulated via bottom-up device shipment modeling and regional supplier capacity checks.</p></div>', unsafe_allow_html=True)
+    st.markdown(f'<div class="hero"><h2>Methodology & Appendix</h2><p>Triangulated bottom-up modeling vs. supplier capacity benchmarks.</p></div>', unsafe_allow_html=True)
     st.info("Full bibliography and 450-row country/city level demand indices available in the purchased deliverable.")
